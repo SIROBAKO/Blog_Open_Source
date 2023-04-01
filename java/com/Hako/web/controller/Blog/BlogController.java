@@ -1,5 +1,6 @@
 package com.Hako.web.controller.Blog;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -46,22 +47,32 @@ public class BlogController {
 		} else {
 			int _num = Integer.parseInt(num);
 			Blog_Board board = blogService.getBoard(_num);
-			List<Blog_Comment> comment = blogService.getCommentList(_num);
-			model.addAttribute("comment", comment);
-			List<Blog_Comment> recomment = blogService.getCommentList(_num);
-			Collections.reverse(recomment);
-			List<Blog_Board> commend = blogService.getCommendRandBoard();
-			model.addAttribute("commend", commend);
-
-			model.addAttribute("recomment", recomment);
-
+			model.addAttribute("board", board);
+			
 			if (board.getTitle() == null) {
 				req.setAttribute("msg", "존재하지 않는 게시물 입니다.");
 				req.setAttribute("url", "/index");
 				return "alert";
 			}
-
-			model.addAttribute("board", board);
+			
+			List<Blog_Comment> comment = blogService.getCommentList(_num);
+			model.addAttribute("comment", comment);
+			List<Blog_Comment> recomment = blogService.getCommentList(_num);
+			Collections.reverse(recomment);
+			model.addAttribute("recomment", recomment);
+			
+			//다음 글 두개 가져오기
+			List<Blog_Board> nextBoard = blogService.getCommendNextBoard(board.getCategory(),_num,2);
+			List<Blog_Board> prevBoard = blogService.getCommendPrevBoard(board.getCategory(),_num,2);
+			 if(nextBoard.size() < 2 &&  prevBoard.size() == 2 ) {
+				prevBoard = blogService.getCommendPrevBoard(board.getCategory(),_num,(4-nextBoard.size()));
+			}else  if(nextBoard.size() == 2 &&  prevBoard.size() < 2 ) {
+				nextBoard = blogService.getCommendNextBoard(board.getCategory(),_num,(4-prevBoard.size()));
+			}
+			
+			model.addAttribute("nextBoard", nextBoard);
+			model.addAttribute("prevBoard", prevBoard);
+			
 
 			return "Blog.nonaside.detail";
 		}

@@ -34,8 +34,11 @@ public interface BlogService {
 //	추천게시물(조회수기반) 반환
 	List<Blog_Board> getCommendBoard();
 	
-//	추천게시물 랜덤 반환
-	List<Blog_Board> getCommendRandBoard();
+//   다음 게시물 반환
+	 List<Blog_Board> getCommendNextBoard(String category,int num, int count);
+
+//   이전 게시물 반환
+	 List<Blog_Board> getCommendPrevBoard(String category,int num, int count);
 
 //	제목 반환
 	String getBoardTitle(int id);

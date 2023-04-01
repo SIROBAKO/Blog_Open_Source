@@ -22,12 +22,22 @@
 				href="/list?category=${board.category}"><i class="icon-menu"></i></a>
 		</h4>
 		<ul>
-			<tag:forEach var="x" items="${commend}">
+			<tag:forEach var="x" items="${nextBoard}">
 				<li><a href="/detail?num=${x.num}"> ${x.title} <i
 						class="icon-right-big"></i>
 				</a></li>
-
 			</tag:forEach>
+			
+			<li><a href="/detail?num=${board.num}"> ${board.title} <i
+						class="icon-right-big"></i>
+				</a></li>
+				
+			<tag:forEach var="x" items="${prevBoard}">
+				<li><a href="/detail?num=${x.num}"> ${x.title} <i
+						class="icon-right-big"></i>
+				</a></li>
+			</tag:forEach>
+			
 		</ul>
 	</div>
 	<hr />

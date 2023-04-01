@@ -350,12 +350,15 @@ public class JDBCBlogService implements BlogService {
 		return list;
 	}
 
-//	게시글 반환 랜덤 기준
-	public List<Blog_Board> getCommendRandBoard() {
+//	다음게시물 반환
+	public List<Blog_Board> getCommendNextBoard(String category,int num, int count) {
 
 		List<Blog_Board> list = new ArrayList<Blog_Board>();
 
-		String sql = "	SELECT * FROM BOARD_BLOG ORDER BY RAND() LIMIT 5";
+		String sql = "SELECT * FROM (SELECT * FROM BOARD_BLOG\r\n"
+				+ "WHERE CREATE_DATE >\r\n"
+				+ "(SELECT CREATE_DATE FROM BOARD_BLOG WHERE CATEGORY LIKE ? AND NUM = ?)\r\n"
+				+ " LIMIT ?)TMP ORDER BY CREATE_DATE DESC;";
 
 		try {
 //			Class.forName("com.mysql.jdbc.Driver");
@@ -363,16 +366,58 @@ public class JDBCBlogService implements BlogService {
 
 			Connection con = dataSource.getConnection();
 			PreparedStatement st = con.prepareStatement(sql);
+			st.setString(1, "%"+category+"%");
+			st.setInt(2, num);
+			st.setInt(3, count);
 			ResultSet rs = st.executeQuery();
 
 			while (rs.next()) {
-				int num = rs.getInt("NUM");
+				int _num = rs.getInt("NUM");
 				String title = rs.getString("TITLE");
 
-				Blog_Board board = new Blog_Board(num, title, null, null, null);
+				Blog_Board board = new Blog_Board(_num, title, null, null, null);
 
 				list.add(board);
+			}
 
+			rs.close();
+			st.close();
+			con.close();
+		} catch (SQLException e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+		return list;
+	}
+	
+//	다음게시물 반환
+	public List<Blog_Board> getCommendPrevBoard(String category,int num, int count) {
+
+		List<Blog_Board> list = new ArrayList<Blog_Board>();
+
+		String sql = "SELECT * FROM BOARD_BLOG\r\n"
+				+ "WHERE CREATE_DATE <\r\n"
+				+ "(SELECT CREATE_DATE FROM BOARD_BLOG WHERE CATEGORY LIKE ? AND NUM = ? \r\n"
+				+ " )ORDER BY CREATE_DATE DESC LIMIT ?;";
+
+		try {
+//			Class.forName("com.mysql.jdbc.Driver");
+//			Connection con = DriverManager.getConnection(url, user, pwd);
+
+			Connection con = dataSource.getConnection();
+			PreparedStatement st = con.prepareStatement(sql);
+			st.setString(1, "%"+category+"%");
+			st.setInt(2, num);
+			st.setInt(3, count);
+			ResultSet rs = st.executeQuery();
+
+			while (rs.next()) {
+				int _num = rs.getInt("NUM");
+				String title = rs.getString("TITLE");
+
+				Blog_Board board = new Blog_Board(_num, title, null, null, null);
+		
+				list.add(board);
 			}
 
 			rs.close();
