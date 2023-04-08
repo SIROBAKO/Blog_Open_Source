@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="com.hako.web.dao.blog.BoardDao">
+
+
+	<resultMap type="com.hako.web.entity.blog.Blog_Board"
+		id="Result_Board_Blog">
+		<result property="date" column="CREATE_DATE" />
+	</resultMap>
+
+	<parameterMap type="com.hako.web.entity.blog.Blog_Board"
+		id="Param_Board_Blog"></parameterMap>
+		
+		
+	<!-- 게시글 목록 반환 -->
+	<select id="getList" resultMap="Result_Board_Blog">
+	    SELECT * FROM ( SELECT @ROWNUM
+		:=
+		@ROWNUM + 1 AS ROWNUM,
+		TMP.*
+		FROM (SELECT * FROM BOARD_BLOG WHERE
+		CATEGORY LIKE
+		'%${category}%' AND
+		TITLE LIKE '%${query}%' )TMP ,
+		(SELECT(@ROWNUM
+		:=0)=0)TMP2 ORDER BY CREATE_DATE DESC)TMP3
+		WHERE ROWNUM
+		BETWEEN
+		${start} AND ${end};
+		
+	</select>
+
+	<!-- 게시글 목록 개수 반환 -->
+	<select id="getCount" resultType="int">
+		SELECT COUNT(*)AS COUNT FROM
+		BOARD_BLOG
+		WHERE CATEGORY LIKE
+		'%${category}%' AND TITLE LIKE
+		'%${query}%';
+	</select>
+
+	<!-- 게시글 반환 -->
+	<select id="get" resultMap="Result_Board_Blog">
+		SELECT * FROM BOARD_BLOG WHERE NUM =
+		${id};
+	</select>
+
+	<!-- 조회수 증가 -->
+	<update id="ADDCount">
+		UPDATE BOARD_BLOG SET COUNT = 1+ COUNT WHERE NUM =
+		${id};
+	</update>
+
+	<!-- 댓글 증가 -->
+	<update id="ADDComment">
+		UPDATE BOARD_BLOG SET COMMENT = 1+ COMMENT WHERE NUM
+		= ${id};
+	</update>
+
+	<!-- 댓글 감소 -->
+	<update id="SUBComment">
+		UPDATE BOARD_BLOG SET COMMENT = COMMENT - 1 WHERE NUM
+		= ${id};
+	</update>
+
+	<!-- 추천 게시물 목록 반환 -->
+	<select id="getCommend" resultMap="Result_Board_Blog">
+		SELECT * FROM BOARD_BLOG ORDER
+		BY COUNT DESC LIMIT 5;
+	</select>
+
+	<!-- 다음 글 목록 반환 -->
+	<select id="getCommendNext" resultMap="Result_Board_Blog">
+		SELECT * FROM (SELECT *
+		FROM BOARD_BLOG WHERE CREATE_DATE &gt;
+		(SELECT
+		CREATE_DATE FROM
+		BOARD_BLOG
+		WHERE CATEGORY LIKE '%${category}%' AND NUM = ${num} )
+		LIMIT
+		${count}
+		)TMP ORDER BY CREATE_DATE DESC;
+	</select>
+
+	<!-- 이전 글 목록 반환 -->
+	<select id="getCommendPrev" resultMap="Result_Board_Blog">
+		SELECT * FROM BOARD_BLOG
+		WHERE CREATE_DATE &lt; (SELECT CREATE_DATE FROM BOARD_BLOG WHERE
+		CATEGORY
+		LIKE '%${category}%' AND NUM = ${num}
+		)ORDER BY CREATE_DATE
+		DESC LIMIT
+		${count};
+	</select>
+
+
+	<!-- 게시글 등록 -->
+	<insert id="insert" parameterMap="Param_Board_Blog"> INSERT INTO BOARD_BLOG
+		(TITLE,CATEGORY,CONTENTS,COMMENT,COUNT)
+		VALUES(#{title},#{category},#{contents},0,0);
+	</insert>
+
+	<!-- 게시글 수정 -->
+	<update id="update" parameterMap="Param_Board_Blog">
+		UPDATE BOARD_BLOG SET TITLE=
+		#{title}, CATEGORY= #{category}, CONTENTS= #{contents} WHERE
+		NUM=#{num};
+	</update>
+
+	<!-- 게시글 삭제 -->
+	<delete id="del">
+		DELETE FROM BOARD_BLOG WHERE NUM=${id};
+	</delete>
+	
+</mapper>
