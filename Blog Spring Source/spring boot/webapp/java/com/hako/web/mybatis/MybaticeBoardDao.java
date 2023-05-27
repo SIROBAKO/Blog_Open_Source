@@ -1,4 +1,4 @@
-package com.hako.web.mybatis.blog;
+package com.hako.web.blog.mybatis;
 
 import java.util.List;
 
@@ -6,8 +6,9 @@ import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import com.hako.web.dao.blog.BoardDao;
-import com.hako.web.entity.blog.Blog_Board;
+import com.hako.web.blog.dao.BoardDao;
+import com.hako.web.blog.entity.Blog_Board;
+import com.hako.web.blog.entity.Blog_Category;
 
 @Repository
 public class MybaticeBoardDao implements BoardDao {
@@ -23,16 +24,16 @@ public class MybaticeBoardDao implements BoardDao {
 	
 
 	@Override
-	public List<Blog_Board> getList(String category, String query, int start, int end) {
+	public List<Blog_Board> getList(String category, String query, int start, int end , String hidden) {
 
-		
-		return mapper.getList(category, query, start, end);
+		System.out.println(hidden);
+		return mapper.getList(category, query, start, end, hidden);
 	}
 
 	@Override
-	public int getCount(String category, String query) {
+	public int getCount(String category, String query,String hidden) {
 		
-		return mapper.getCount(category, query);
+		return mapper.getCount(category, query, hidden);
 	}
 
 	@Override
@@ -93,6 +94,22 @@ public class MybaticeBoardDao implements BoardDao {
 	public int del(int id) {
 		// TODO Auto-generated method stub
 		return mapper.del(id);
+	}
+
+
+
+	@Override
+	public List<Blog_Category> getCategory() {
+		// TODO Auto-generated method stub
+		return mapper.getCategory();
+	}
+
+
+
+	@Override
+	public Blog_Board getLast() {
+		// TODO Auto-generated method stub
+		return mapper.getLast();
 	}
 
 }

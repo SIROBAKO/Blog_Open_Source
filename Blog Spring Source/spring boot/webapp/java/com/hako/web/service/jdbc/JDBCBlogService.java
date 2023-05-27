@@ -1,4 +1,4 @@
-package com.hako.web.service.blog.jdbc;
+package com.hako.web.blog.service.jdbc;
 
 import java.util.List;
 
@@ -6,11 +6,12 @@ import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.hako.web.dao.blog.BoardDao;
-import com.hako.web.dao.blog.CommentDao;
-import com.hako.web.entity.blog.Blog_Board;
-import com.hako.web.entity.blog.Blog_Comment;
-import com.hako.web.service.blog.BlogService;
+import com.hako.web.blog.dao.BoardDao;
+import com.hako.web.blog.dao.CommentDao;
+import com.hako.web.blog.entity.Blog_Board;
+import com.hako.web.blog.entity.Blog_Category;
+import com.hako.web.blog.entity.Blog_Comment;
+import com.hako.web.blog.service.BlogService;
 
 @Service
 public class JDBCBlogService implements BlogService {
@@ -27,47 +28,51 @@ public class JDBCBlogService implements BlogService {
 
 //	게시글 목록 구하기
 	@Override
-	public List<Blog_Board> getBoardList() {
-		return getBoardList("", "", 1);
+	public List<Blog_Board> getBoardList(String hidden) {
+		return getBoardList("", "", 1, hidden);
 	}
 
 	@Override
-	public List<Blog_Board> getBoardList(int page) {
+	public List<Blog_Board> getBoardList(int page, String hidden) {
 
-		return getBoardList("", "", page);
+		return getBoardList("", "", page, hidden);
 	}
 
 	@Override
-	public List<Blog_Board> getBoardList(String category, String query, int page) {
+	public List<Blog_Board> getBoardList(String category, String query, int page, String hidden) {
 
 		int start = 1 + (page - 1) * 6;
 		int end = page * 6;
 
-		return boardDao.getList(category, query, start, end);
+		return boardDao.getList(category, query, start, end, hidden);
 
 	}
 
 //	게시글 수 구하기
 	@Override
-	public int getBoardCount() {
+	public int getBoardCount(String hidden) {
 
-		return getBoardCount("title", "");
+		return getBoardCount("title", "", hidden);
 	}
 
 	@Override
-	public int getBoardCount(String category, String query) {
+	public int getBoardCount(String category, String query, String hidden) {
 
-		return boardDao.getCount(category, query);
+		return boardDao.getCount(category, query, hidden);
 	}
 
 //	게시글 반환
 	public Blog_Board getBoard(int id) {
 
-		ADDCount(id);
-
 		return boardDao.get(id);
 	}
 
+	@Override
+	public Blog_Board getBoard() {
+		
+		return boardDao.getLast();
+	}
+	
 //	조회수  상승
 	@Override
 	public void ADDCount(int id) {
@@ -145,63 +150,65 @@ public class JDBCBlogService implements BlogService {
 
 //	댓글 수정	
 	@Override
-	public int UpdateComment(Blog_Comment comment, int id, String pwd) {
+	public int UpdateComment(Blog_Comment comment) {
 
 		// 비밀번호 불일치
-		if (CheckUser(id, pwd) == 0) {
+		if (CheckUser(comment.getNum(), comment.getPwd()) == 0) {
 			return 2;
 		} else {
 			return commentDao.update(comment);
 		}
 	}
 
-	
 //	댓글 삭제
 	@Override
-	public int DelComment(int id, String pwd) {
+	public int DelComment(Blog_Comment comment) {
 
 		// 비밀번호 불일치
-		if (CheckUser(id, pwd) == 0) {
+		if (CheckUser(comment.getNum(), comment.getPwd()) == 0) {
 			return 2;
 		} else {
-			
-			Blog_Comment comment = commentDao.get(id);
 
-			
+			Blog_Comment _comment = commentDao.get(comment.getNum());
+
 			// 최상위 댓글 일시
-			if (comment.getRef_comment() == 0) {
-			
+			if (_comment.getRef_comment() == 0) {
+
 				// 대댓글이 없을 시
-				if (commentDao.getRefCount(id) == 0) {
+				if (commentDao.getRefCount(_comment.getNum()) == 0) {
 					// 삭제
-					return commentDao.del(id);
-					
+					return commentDao.del(_comment.getNum());
+
 					// 대댓글이 있을 때 업데이트
 				} else {
 					Blog_Comment update = new Blog_Comment();
 					update.setUser_name("NULL");
 					update.setComment("삭제된 댓글 입니다.");
-					update.setId(id);
-					
-					if(commentDao.update(update) == 1) {
+					update.setNum(_comment.getNum());
+
+					if (commentDao.update(update) == 1) {
 						return 3;
-					}else {
+					} else {
 						return 0;
 					}
-					
+
 				}
 				// 대댓글 일때
 			} else {
 				// 대댓글 삭제
-				if (commentDao.del(id) == 1) {
+				if (commentDao.del(_comment.getNum()) == 1) {
 
 					// 삭제후 최상위 댓글이 삭제된 댓글이라면
-					Blog_Comment refComment = commentDao.get(comment.getRef_comment());
-					
-					if (refComment.getUser_name().equals("NULL")) {
-						// 이 댓글도 삭제
-					    return commentDao.del(refComment.getId());
+					System.out.println(commentDao.getRefCount(_comment.getRef_comment()));
+					if (commentDao.getRefCount(_comment.getRef_comment()) == 0) {
+						Blog_Comment refComment = commentDao.get(_comment.getRef_comment());
+
+						if (refComment.getUser_name().equals("NULL")) {
+							// 이 댓글도 삭제
+							return commentDao.del(refComment.getNum());
+						}
 					}
+
 					return 1;
 				}
 				return 0;
@@ -209,18 +216,17 @@ public class JDBCBlogService implements BlogService {
 		}
 	}
 
-	
 	// 댓글 리스트 반환
 	@Override
 	public List<Blog_Comment> getCommentList(int num) {
-		
+
 		return commentDao.getList(num);
 	}
 
 //	댓글 사용자 확인
-	private int CheckUser(int id, String pwd) {
-		
-		String _pwd = commentDao.get(id).getPwd();
+	private int CheckUser(int num, String pwd) {
+
+		String _pwd = commentDao.get(num).getPwd();
 
 		if (!BCrypt.checkpw(pwd, _pwd)) {
 			return 0;
@@ -228,4 +234,12 @@ public class JDBCBlogService implements BlogService {
 		return 1;
 
 	}
+
+	@Override
+	public List<Blog_Category> getCategory() {
+		// TODO Auto-generated method stub
+		return boardDao.getCategory();
+	}
+
+	
 }

@@ -1,17 +1,18 @@
-package com.hako.web.dao.blog;
+package com.hako.web.blog.dao;
 
 import java.util.List;
 
-import com.hako.web.entity.blog.Blog_Board;
+import com.hako.web.blog.entity.Blog_Board;
+import com.hako.web.blog.entity.Blog_Category;
 
 
 public interface BoardDao {
 
 //	게시글 목록 반환
-	List<Blog_Board> getList(String category, String query, int start, int end);
+	List<Blog_Board> getList(String category, String query, int start, int end,String hidden);
 
 //	게시글 개수 반환
-	int getCount(String category, String query);
+	int getCount(String category, String query,String hidden);
 
 //	게시글 반환
 	Blog_Board get(int id);
@@ -43,4 +44,9 @@ public interface BoardDao {
 
 //	게시글 삭제
 	int del(int id);
+
+	List<Blog_Category> getCategory();
+
+
+	Blog_Board getLast();
 }

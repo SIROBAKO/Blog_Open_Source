@@ -1,24 +1,25 @@
-package com.hako.web.service.blog;
+package com.hako.web.blog.service;
 
 
 import java.util.List;
 
-import com.hako.web.entity.blog.Blog_Board;
-import com.hako.web.entity.blog.Blog_Comment;
+import com.hako.web.blog.entity.Blog_Board;
+import com.hako.web.blog.entity.Blog_Category;
+import com.hako.web.blog.entity.Blog_Comment;
 
 public interface BlogService {
 
 //	게시물 목록 반환
-	List<Blog_Board> getBoardList();
+	List<Blog_Board> getBoardList(String hidden);
 
-	List<Blog_Board> getBoardList(int page);
+	List<Blog_Board> getBoardList(int page ,String hidden);
 
-	List<Blog_Board> getBoardList(String category, String query, int page);
+	List<Blog_Board> getBoardList(String category, String query, int page, String hidden);
 
 //	게시물 개수 반환
-	int getBoardCount();
+	int getBoardCount(String hidden);
 
-	int getBoardCount(String category, String query);
+	int getBoardCount(String category, String query,String hidden);
 
 //	게시물 반환
 	Blog_Board getBoard(int id);
@@ -55,13 +56,17 @@ public interface BlogService {
 	int InsertComment(Blog_Comment comment);
 
 //	댓글 수정
-	int UpdateComment(Blog_Comment comment, int id, String pwd);
+	int UpdateComment(Blog_Comment comment);
 
 //	댓글 삭제
-	int DelComment(int id, String pwd);
+	int DelComment(Blog_Comment comment);
 	
 //	댓글 반환
 	List<Blog_Comment> getCommentList(int num);
+
+	List<Blog_Category> getCategory();
+
+	Blog_Board getBoard();
 	
 	
 

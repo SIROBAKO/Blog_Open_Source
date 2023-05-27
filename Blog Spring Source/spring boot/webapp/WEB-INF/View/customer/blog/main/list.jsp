@@ -13,20 +13,22 @@
 		<h1>
 			HAKO<span>blog</span>
 		</h1>
-		${ param.category } 
+		${category}
 	</div>
 
 	<ul class="Content-List-2">
 		<tag:forEach var="x" items="${list}">
-			<a href="/detail?num=${x.num}"><li><img
-					src="/upload_image/image/fileupload/${x.title}/thumbnail/thumbnail.PNG"
-					onerror="this.src='/image/logo/black.png'" /> <span>
-						<h3>${x.title }</h3>
-						<p>${x.category}
-							º
-							<fmt:formatDate value="${x.date}" pattern="yyyy-MM-dd " />
-						</p>
-				</span></li></a>
+			<tag:if test="${!x.hidden.equals('Y')}">
+				<a href="/detail/${x.num}"><li><img
+						src="/upload_image/image/fileupload/${x.num}/thumbnail/thumbnail.PNG"
+						onerror="this.src='/image/logo/black.png'" /> <span>
+							<h3>${x.title }</h3>
+							<p>${x.category}
+								º
+								<fmt:formatDate value="${x.date}" pattern="yyyy-MM-dd " />
+							</p>
+					</span></li></a>
+			</tag:if>
 		</tag:forEach>
 	</ul>
 	<ul class="page_controller">
@@ -39,7 +41,7 @@
 
 		<tag:if test="${StartNum>1}">
 			<li><a
-				href="?page=${StartNum-1}&category=${param.category}&title=${param.title}"">
+				href="${param.category}?title=${param.title}&page=${StartNum-1}">
 					<i class="icon-left-open-big"></i>
 			</a></li>
 		</tag:if>
@@ -54,7 +56,7 @@
 		<tag:forEach var="i" begin="0" end="4">
 			<tag:if test="${StartNum+i <= LastNum }">
 				<li><a
-					href="?page=${StartNum+i}&category=${param.category}&title=${param.title}">
+					href="${param.category}?title=${param.title}&page=${StartNum+i}">
 						${StartNum+i}</a></li>
 
 			</tag:if>
@@ -62,7 +64,7 @@
 
 		<tag:if test="${StartNum+5<LastNum}">
 			<li><a
-				href="?page=${StartNum+5}&category=${param.category}&title=${param.title}"">
+				href="${param.category}?title=${param.title}&page=${StartNum+5}">
 					<i class="icon-right-open-big"></i>
 			</a></li>
 		</tag:if>

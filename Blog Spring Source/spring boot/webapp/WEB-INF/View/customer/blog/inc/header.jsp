@@ -1,4 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=utf-8"%>
+<%@ taglib prefix="tag" uri="http://java.sun.com/jsp/jstl/core"%>
+
 <!-- header -->
 <header id="header">
 	<div class="Header-Icon">
@@ -47,8 +49,9 @@
 
 	<h4 id="Language-Toggle">카테고리</h4>
 	<ul id="Language-menu">
-		<a href="/list"><li>전체글</li></a>
-		<a href="/list?category=Blog 제작"><li>블로그 제작</li></a>
+		<tag:forEach var="x" items="${categorys}">
+			<li><a href="/list/${x.query}"> ${x.category} </a></li>
+		</tag:forEach>
 	</ul>
 	<h4 id="Project-Toggle">프로젝트</h4>
 	<ul id="Project-menu">

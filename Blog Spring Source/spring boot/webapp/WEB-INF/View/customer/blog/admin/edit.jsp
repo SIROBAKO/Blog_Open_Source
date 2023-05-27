@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=utf-8"
 	pageEncoding="UTF-8"%>
+<%@ taglib prefix="tag" uri="http://java.sun.com/jsp/jstl/core"%>
 <!-- editor -->
 <!-- include libraries(jQuery, bootstrap) -->
 <link
@@ -16,19 +17,22 @@
 
 <div class="editor-space">
 
-	<form method="post" action="/admin/reg"
-		enctype="multipart/form-data">
+	<form method="post" action="/admin/reg" enctype="multipart/form-data">
 		<h3>제목</h3>
 		<input type="text" name="title" />
 		<h4>썸네일</h4>
 		<input type="file" name="thumbnail" />
 		<h4>카테고리</h4>
 		<select name="category">
-			<option value="Blog 제작">Blog 제작</option>
-			<option value="드럼머신">드럼머신</option>
+			<tag:forEach var="x" items="${categorys}">
+				<tag:if test="${!x.query.equals('')}">
+					<option value="${x.query}">${x.category}</option>
+				</tag:if>
+			</tag:forEach>
 		</select>
 		<textarea id="summernote" name="content"></textarea>
-		<input type="submit">
+		<input type="submit" name ="doit" value="임시저장">
+		<input type="submit" name ="doit" value="저장">
 	</form>
 
 </div>
@@ -38,7 +42,8 @@ $(document).ready(function () {
     $('#summernote').summernote(
         {
         	codeviewFilter: false,
-        	codeviewIframeFilter: true
+        	codeviewIframeFilter: false,
+
             height: 500, // 에디터 높이
             minHeight: null, // 최소 높이
             maxHeight: null, // 최대 높이
@@ -84,7 +89,18 @@ $(document).ready(function () {
                     className: 'blockquote',
                     value: 'blockquote',
                 },
-                'pre',
+                {
+                    title: 'code_light',
+                    tag: 'pre',
+                    className: 'code_light',
+                    value: 'pre',
+                },
+                {
+                    title: 'code_dark',
+                    tag: 'pre',
+                    className: 'code_dark',
+                    value: 'pre',
+                },
                 'h1',
                 'h2',
                 'h3',

@@ -6,8 +6,8 @@
 
 	<ul id="index-list"class="Content-List">
 		<tag:forEach var="x" items="${list}">
-			<li ><a href="/detail?num=${x.num}"> <img
-					src="/upload_image/image/fileupload/${x.title}/thumbnail/thumbnail.PNG"
+			<li ><a href="/detail/${x.num}"> <img
+					src="/upload_image/image/fileupload/${x.num}/thumbnail/thumbnail.PNG"
 					onerror="this.src='/image/logo/black.png'" />
 					<h3>${x.title}</h3>
 			</a>

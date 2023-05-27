@@ -1,21 +1,15 @@
 <%@ page language="java" contentType="text/html; charset=utf-8"%>
+<%@ taglib prefix="tag" uri="http://java.sun.com/jsp/jstl/core"%>
+
 <!-- header -->
 <header id="header">
 	<div class="Header-Icon">
 		<a href="/index"> <img id="logo" src="/image/logo/HAK-logo.png" />
 		</a>
 	</div>
-	<div class="Header-search">
-		<form method="GET" action="/admin/list">
-			<input id="Search_Submit" type="submit" /> <label
-				for="Search_Submit"> <i class="icon-search"></i>
-			</label> <input type="text" name="title" placeholder="검색..." /> <input
-				id="Search_Reset" type="reset" /> <label for="Search_Reset">
-				<i class="icon-cancel"></i>
-			</label>
-		</form>
-	</div>
-	<div class="Header-Mode-Console" onclick="DarkModeChange()">
+
+	<div style="display: none" class="Header-Mode-Console"
+		onclick="DarkModeChange()">
 		<label for="Mode-Console">Dark</label> <i id="Mode-Console"
 			class="icon-moon"></i>
 	</div>
@@ -48,9 +42,11 @@
 
 	<h4 id="Language-Toggle">카테고리</h4>
 	<ul id="Language-menu">
-		<a href="/admin/edit"><li>글작성</li></a>
-		<a href="/admin/list"><li>전체글</li></a>
-		<a href="/admin/list?category=Blog 제작"><li>블로그 제작</li></a>
+		<li><a href="/admin/edit">글작성</a></li>
+		<li><a href="/admin/list/hidden">임시저장</a></li>
+		<tag:forEach var="x" items="${categorys}">
+			<li><a href="/admin/list/${x.query}"> ${x.category}</a></li>
+		</tag:forEach>
 	</ul>
 	<h4 id="Project-Toggle">프로젝트</h4>
 	<ul id="Project-menu">

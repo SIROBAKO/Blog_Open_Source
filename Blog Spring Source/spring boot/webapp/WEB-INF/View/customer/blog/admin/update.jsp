@@ -1,6 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=utf-8"
 	pageEncoding="UTF-8"%>
-
+<%@ taglib prefix="tag" uri="http://java.sun.com/jsp/jstl/core"%>
 <!-- editor -->
 <!-- include libraries(jQuery, bootstrap) -->
 <link
@@ -25,10 +25,14 @@
 		<input type="file" name="thumbnail" />
 		<h4>카테고리</h4>
 		<select name="category">
-			<option value="Blog 제작">Blog 제작</option>
-			<option value="드럼머신">드럼머신</option>
+			<tag:forEach var="x" items="${categorys}">
+				<tag:if test="${!x.query.equals('')}">
+					<option value="${x.query}">${x.category}</option>
+				</tag:if>
+			</tag:forEach>
 		</select>
 		<textarea id="summernote" name="content">${board.contents}</textarea>
+		<input type="submit" name ="doit" value="비공개">
 		<input type="text" name="num" style="display: none;"
 			value="${param.num }"> <input type="submit" name="doit"
 			value="업데이트" onclick="return confirm('수정하시겠습니까?')"> <input
@@ -43,13 +47,13 @@ $(document).ready(function () {
     $('#summernote').summernote(
         {
         	codeviewFilter: false,
-        	codeviewIframeFilter: true,
+        	codeviewIframeFilter: false,
+        	width : 'auto',
             height: 500, // 에디터 높이
-            minHeight: null, // 최소 높이
             maxHeight: null, // 최대 높이
             focus: true, // 에디터 로딩후 포커스를 맞출지 여부
             lang: 'ko-KR', // 한글 설정
-
+			
             toolbar: [
                 // 글자 크기 설정
                 ['style', ['style']],
@@ -88,8 +92,19 @@ $(document).ready(function () {
                     tag: 'blockquote',
                     className: 'blockquote',
                     value: 'blockquote',
+                },   
+                {
+                    title: 'code_light',
+                    tag: 'pre',
+                    className: 'code_light',
+                    value: 'pre',
                 },
-                'pre',
+                {
+                    title: 'code_dark',
+                    tag: 'pre',
+                    className: 'code_dark',
+                    value: 'pre',
+                },
                 'h1',
                 'h2',
                 'h3',
@@ -109,6 +124,7 @@ $(document).ready(function () {
         },
      
     )
+ 
 })
 
 function uploadSummernoteImageFile(file, el) {

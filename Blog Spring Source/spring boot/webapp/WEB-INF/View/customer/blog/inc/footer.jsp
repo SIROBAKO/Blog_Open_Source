@@ -2,11 +2,13 @@
 <!-- footer -->
 <footer>
 
-	<p id="move-top" onclick="goTop()">
-		<a> Back to top<i class="icon-angle-up"></i>
+	<p id="move-top" >
+		<a onclick="goTop()"> Back to top<i class="icon-angle-up"></i>
 		</a>
+		<a onclick = "showInfo()"> <i class = "icon-angle-down"></i> Show Info</a>
 	</p>
-	<p>
+	
+	<p id="blog-info" >
 	Email : edwsqa987@gmail.com<br/><br/>
 	GitHub : <a href="https://github.com/SIROBAKO">https://github.com/SIROBAKO</a><br/><br/><br/>
 	&copy; 2022 . HAKO All rights reserved.

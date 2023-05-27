@@ -8,17 +8,38 @@
 
 
 <div class="Main-Content">
+	<div class="List-Category">
+		<h1>
+			HAKO<span>blog</span>
+		</h1>
+		${category}
+	</div>
+
+
 	<ul class="Content-List-2">
 		<tag:forEach var="x" items="${list}">
-			<a href="/admin/update?num=${x.num}"><li><img
-					src="/upload_image/image/fileupload/${x.title}/thumbnail/thumbnail.PNG"
-					onerror="this.src='/image/logo/black.png'" /> <span>
-						<h3>${x.title }</h3>
-						<p>${x.category}
-							º
-							<fmt:formatDate value="${x.date}" pattern="yyyy-MM-dd " />
-						</p>
-				</span></li></a>
+			<tag:if test="${!category.equals('임시저장') && !x.hidden.equals('Y')}">
+				<a href="/admin/update?num=${x.num}"><li><img
+						src="/upload_image/image/fileupload/${x.num}/thumbnail/thumbnail.PNG"
+						onerror="this.src='/image/logo/black.png'" /> <span>
+							<h3>${x.title }</h3>
+							<p>${x.category}
+								º
+								<fmt:formatDate value="${x.date}" pattern="yyyy-MM-dd " />
+							</p>
+					</span></li></a>
+			</tag:if>
+			<tag:if test="${ category.equals('임시저장') && x.hidden.equals('Y') }">
+				<a href="/admin/update?num=${x.num}"><li><img
+						src="/upload_image/image/fileupload/${x.num}/thumbnail/thumbnail.PNG"
+						onerror="this.src='/image/logo/black.png'" /> <span>
+							<h3>${x.title }</h3>
+							<p>${x.category}
+								º
+								<fmt:formatDate value="${x.date}" pattern="yyyy-MM-dd " />
+							</p>
+					</span></li></a>
+			</tag:if>
 		</tag:forEach>
 	</ul>
 

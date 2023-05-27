@@ -1,4 +1,4 @@
-package com.hako.web.mybatis.blog;
+package com.hako.web.blog.mybatis;
 
 import java.util.List;
 
@@ -6,8 +6,8 @@ import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import com.hako.web.dao.blog.CommentDao;
-import com.hako.web.entity.blog.Blog_Comment;
+import com.hako.web.blog.dao.CommentDao;
+import com.hako.web.blog.entity.Blog_Comment;
 
 @Repository
 public class MybaticeCommentDao implements CommentDao {
@@ -33,9 +33,9 @@ public class MybaticeCommentDao implements CommentDao {
 	}
 
 	@Override
-	public int del(int id) {
+	public int del(int num) {
 		// TODO Auto-generated method stub
-		return mapper.del(id);
+		return mapper.del(num);
 	}
 
 	@Override
@@ -45,9 +45,9 @@ public class MybaticeCommentDao implements CommentDao {
 	}
 
 	@Override
-	public Blog_Comment get(int id) {
+	public Blog_Comment get(int num) {
 		// TODO Auto-generated method stub
-		return mapper.get(id);
+		return mapper.get(num);
 	}
 
 	@Override

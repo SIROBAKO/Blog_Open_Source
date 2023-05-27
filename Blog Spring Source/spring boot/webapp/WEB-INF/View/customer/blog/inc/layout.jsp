@@ -9,7 +9,7 @@
 
 <!-- 홈페이지 정보 -->
 
-<tag:if test="${empty param.num}">
+<tag:if test="${ empty board }">
 	<title>HAKO blog</title>
 	<meta property="og:title" content="HAKO blog">
 
@@ -17,7 +17,7 @@
 	<meta property="og:description" content="블로그 페이지">
 	<meta property='og:image' content='https://sirobako.co.kr/image/logo/HAK-logo.png' />
 </tag:if>
-<tag:if test="${!empty param.num}">
+<tag:if test="${ not empty board}">
 	<title>${board.title }</title>
 	<meta property="og:title" content="${board.title }">
 
@@ -36,7 +36,8 @@
 
 
 <!-- 선호 링크 -->
-<link rel='canonical' href='https://www.sirobako.co.kr' />
+<link rel="canonical" href="https://www.sirobako.co.kr/${url}">
+
 
 <!-- 탭창아이콘 -->
 
@@ -44,7 +45,8 @@
 <link rel='icon' href='/image/logo/HAK-logo.png' type='image/x-icon' />
 
 <!-- 검색엔진 -->
-<meta name='robots' content='ALL' />
+<meta name="robots" content="index,follow">
+
 
 <!-- css 연동 -->
 <link rel="stylesheet" href="/Css/style.css" />

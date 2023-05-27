@@ -6,10 +6,10 @@ window.onload = function() {
 		setCookie('color-theme', getCookie("color-theme"), 3)
 	}
 
+
 	if (getCookie("color-theme") == 'light') {
 		changeLight()
 	} else {
-
 		changeDark()
 	}
 	document.documentElement.setAttribute('color-theme', getCookie("color-theme"))
@@ -44,6 +44,21 @@ function changeDark() {
 	document.querySelector('label[for="mobile-Mode-Console"]').innerHTML =
 		'Light'
 	document.getElementById('mobile-Mode-Console').className = 'icon-sun'
+
+	
+	if (window.location.href.includes('detail')) {
+		var code_dark = document.querySelectorAll('.code_dark');
+		var code_light = document.querySelectorAll('.code_light');
+		if (code_dark != null) {
+			code_dark.forEach(function(dark) {
+				dark.style.display = "block"
+			});
+		}
+		if (code_light != null)
+			code_light.forEach(function(light) {
+				light.style.display = "none"
+			});
+	}
 }
 function changeLight() {
 	document.getElementById('logo').src = '/image/logo/HAK-logo.png'
@@ -54,7 +69,26 @@ function changeLight() {
 	document.querySelector('label[for="mobile-Mode-Console"]').innerHTML =
 		'Dark'
 	document.getElementById('mobile-Mode-Console').className = 'icon-moon'
+
+
+
+
+	if (window.location.href.includes('detail')) {
+		var code_dark = document.querySelectorAll('.code_dark');
+		var code_light = document.querySelectorAll('.code_light');
+
+		if (code_dark != null) {
+			code_dark.forEach(function(dark) {
+				dark.style.display = "none"
+			});
+		}
+		if (code_light != null)
+			code_light.forEach(function(light) {
+				light.style.display = "block"
+			});
+	}
 }
+
 function openNav() {
 	document.getElementById('sub_bg').style.display = 'block'
 	document.getElementById('mobile-nav').style.display = 'block'
@@ -87,7 +121,29 @@ function closeNav() {
 
 
 function goTop() {
-	window.scrollTo(0, 0)
+	window.scroll({
+		top: 0,
+		left: 0,
+		behavior: "smooth"
+	})
+}
+
+function showInfo() {
+
+	check = document.getElementById("blog-info").style.display
+
+	if (check == "block") {
+		document.getElementById("blog-info").style.display = 'none'
+	} else {
+		document.getElementById("blog-info").style.display = 'block'
+
+
+	}
+	window.scroll({
+		top: document.body.scrollHeight,
+		left: 0,
+		behavior: "smooth"
+	})
 }
 
 function setCookie(cookie_name, value, days) {
@@ -96,7 +152,8 @@ function setCookie(cookie_name, value, days) {
 	// 설정 일수만큼 현재시간에 만료값으로 지정
 
 	var cookie_value = escape(value) + ((days == null) ? '' : '; expires=' + exdate.toUTCString());
-	document.cookie = cookie_name + '=' + cookie_value;
+	document.cookie = cookie_name + '=' + cookie_value + "; path=/"
+
 }
 
 function getCookie(cookie_name) {
@@ -119,7 +176,7 @@ function getCookie(cookie_name) {
 
 
 
-function AddComment(num, id, recomment) {
+function AddComment(ref, ref_comment, recomment) {
 
 
 
@@ -168,8 +225,8 @@ function AddComment(num, id, recomment) {
 	} else {
 
 		const form = {
-			num: num,
-			id: id,
+			ref: ref,
+			ref_comment: ref_comment,
 			comment: comment,
 			user_name: user_name,
 			pwd: pwd,
@@ -205,9 +262,10 @@ function AddComment(num, id, recomment) {
 
 
 
-function DelComment(num,id) {
+function DelComment(num) {
+
 	if (confirm('삭제 하시겠습니까?')) {
-	
+
 		pwd = prompt("비밀번호를 입력하세요", "");
 		if (pwd == "") {
 			alert("비밀번호를 입력하세요")
@@ -215,10 +273,7 @@ function DelComment(num,id) {
 			const form = {
 				num: num,
 				pwd: pwd,
-				id: id,
 				doit: "del",
-				
-
 			}
 
 			const option = {
@@ -235,7 +290,7 @@ function DelComment(num,id) {
 
 					result = text.replace(/[^0-9]/g, '')
 					if (result == 1) {
-						document.getElementById("comment_area"+id).remove()
+						document.getElementById("comment_area" + num).remove()
 						alert("댓글이 삭제되었습니다.")
 					} else if (result == 0) {
 						alert("댓글이 삭제에 실패하였습니다.")
@@ -243,9 +298,9 @@ function DelComment(num,id) {
 						alert("비밀번호가 틀립니다.")
 					} else if (result == 3) {
 
-						document.getElementById("user-name" + id).innerHTML = "NULL"
-						document.getElementById("comment" + id).innerHTML = "삭제된 댓글 입니다."
-						document.getElementById("edit" + id).remove()
+						document.getElementById("user-name" + num).innerHTML = "NULL"
+						document.getElementById("comment" + num).innerHTML = "삭제된 댓글 입니다."
+						document.getElementById("edit" + num).remove()
 						alert("댓글이 삭제되었습니다.")
 					}
 
@@ -257,7 +312,7 @@ function DelComment(num,id) {
 }
 
 
-function UpdateComment(id) {
+function UpdateComment(num) {
 
 	comment = document.getElementById('update-comment').value
 	user_name = document.getElementById('update-user-name').value
@@ -290,7 +345,7 @@ function UpdateComment(id) {
 	} else {
 
 		const form = {
-			id: id,
+			num: num,
 			comment: comment,
 			user_name: user_name,
 			pwd: pwd,
@@ -310,8 +365,8 @@ function UpdateComment(id) {
 			.then(text => {
 				result = text.replace(/[^0-9]/g, '')
 				if (result == 1) {
-					document.getElementById("comment" + id).innerText = comment
-					document.getElementById("user-name" + id).innerText = user_name
+					document.getElementById("comment" + num).innerText = comment
+					document.getElementById("user-name" + num).innerText = user_name
 					document.getElementById("recomment").remove()
 					alert("댓글이 수정되었습니다.")
 
@@ -332,7 +387,7 @@ function UpdateComment(id) {
 	}
 }
 
-function ReComment(num, id, pos, update) {
+function ReComment(ref, ref_comment, pos, update) {
 
 
 
@@ -346,7 +401,7 @@ function ReComment(num, id, pos, update) {
 			input_console += '암호 : <input type="text" id="re-pwd" />'
 			input_console += '<input id="comment-submit" type="button" style="display: none" />'
 			input_console += '<input id="comment-submit" type="button" style="display: none" />'
-			input_console += '<label for="comment-submit"><i class="icon-paper-plane" onclick="AddComment(' + num + ', ' + id + ',1)"></i></label>'
+			input_console += '<label for="comment-submit"><i class="icon-paper-plane" onclick="AddComment(' + ref + ', ' + ref_comment + ',1)"></i></label>'
 			input_console += '</p>'
 			input_console += '</div>'
 
@@ -354,7 +409,7 @@ function ReComment(num, id, pos, update) {
 				document.getElementById("recomment").remove()
 			}
 
-			document.getElementById("comment_area"+pos).insertAdjacentHTML("beforeend", input_console)
+			document.getElementById("comment_area" + pos).insertAdjacentHTML("beforeend", input_console)
 		}
 	} else {
 		if (confirm('댓글을 수정 하시겠습니까?')) {
@@ -375,7 +430,7 @@ function ReComment(num, id, pos, update) {
 				document.getElementById("recomment").remove()
 			}
 
-			document.getElementById("comment_area"+pos).insertAdjacentHTML("beforeend", input_console)
+			document.getElementById("comment_area" + pos).insertAdjacentHTML("beforeend", input_console)
 
 			document.getElementById("update-comment").focus()
 		}
@@ -416,11 +471,10 @@ function AddList() {
 				for (i = 0; i < text.list.length; i++) {
 
 					input_console = '<li>'
-					input_console += '<a href="/detail?num=' + text.list[i].num + '">'
-					input_console += '<img src="/image/fileupload/' + text.list[i].title + '/thumbnail/thumbnail.PNG" onerror="this.src=\'/image/logo/black.png\'">'
+					input_console += '<a href="/detail/' + text.list[i].num + '">'
+					input_console += '<img src="/upload_image/image/fileupload/' + text.list[i].num + '/thumbnail/thumbnail.PNG" onerror="this.src=\'/image/logo/black.png\'">'
 					input_console += '<h3>' + text.list[i].title + '</h3></a>'
 					input_console += '<p>' + text.list[i].category + '</p></li>'
-
 					document.getElementById("index-list").insertAdjacentHTML("beforeend", input_console)
 				}
 			}

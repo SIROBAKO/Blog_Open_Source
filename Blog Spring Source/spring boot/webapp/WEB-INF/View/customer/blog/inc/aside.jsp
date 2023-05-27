@@ -7,7 +7,7 @@
 		<ul>
 			<tag:forEach var="x" items="${commend}" varStatus="status">
 				<li>
-					<p>${status.count}</p> <a href="/detail?num=${x.num}">
+					<p>${status.count}</p> <a href="/detail/${x.num}">
 						<h4>${x.title}</h4>
 				</a>
 				</li>
