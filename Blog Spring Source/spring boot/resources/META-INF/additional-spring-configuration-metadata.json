@@ -1,0 +1,72 @@
+{"properties": [
+  {
+    "name": "log4j.appender.stdout.layout.ConversionPattern",
+    "type": "java.lang.String",
+    "description": "A description for 'log4j.appender.stdout.layout.ConversionPattern'"
+  },
+  {
+    "name": "log4j.appender.stdout.DatePattern",
+    "type": "java.lang.String",
+    "description": "A description for 'log4j.appender.stdout.DatePattern'"
+  },
+  {
+    "name": "log4j.appender.stdout.File",
+    "type": "java.lang.String",
+    "description": "A description for 'log4j.appender.stdout.File'"
+  },
+  {
+    "name": "classpath",
+    "type": "java.lang.String",
+    "description": "A description for 'classpath'"
+  },
+  {
+    "name": "server.ssl.redirect-http",
+    "type": "java.lang.String",
+    "description": "A description for 'server.ssl.redirect-http'"
+  },
+  {
+    "name": "WebSocketUpgrade",
+    "type": "java.lang.String",
+    "description": "A description for 'WebSocketUpgrade'"
+  },
+  {
+    "name": "blog.resourcePath",
+    "type": "java.lang.String",
+    "description": "A description for 'blog.resourcePath'"
+  },
+  {
+    "name": "blog.sitemapFilePath",
+    "type": "java.lang.String",
+    "description": "A description for 'blog.sitemapFilePath'"
+  },
+  {
+    "name": "blog.realPath",
+    "type": "java.lang.String",
+    "description": "A description for 'blog.realPath'"
+  },
+  {
+    "name": "blog.adScript",
+    "type": "java.lang.String",
+    "description": "A description for 'blog.adScript'"
+  },
+  {
+    "name": "security.password",
+    "type": "java.lang.String",
+    "description": "A description for 'security.password'"
+  },
+  {
+    "name": "security.username",
+    "type": "java.lang.String",
+    "description": "A description for 'security.username'"
+  },
+  {
+    "name": "blog.realPath",
+    "type": "java.lang.String",
+    "description": "A description for 'blog.realPath'"
+  },
+  {
+    "name": "hibernate.packagesToScan",
+    "type": "java.lang.String",
+    "description": "A description for 'hibernate.packagesToScan'"
+  }
+]}

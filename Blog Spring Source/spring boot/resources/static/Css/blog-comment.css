@@ -1,0 +1,124 @@
+.comment-space {
+    width: 100%;
+    margin: 0px auto;
+    margin-top: 30px;
+    display: flex;
+    flex-direction: column;
+}
+
+.comment-space ul {
+    word-break: break-all;
+}
+
+.comment-space li {
+    margin: 20px 0px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.comment-space .recomment {
+    background-color: var(--comment-bgcolor);
+    border-radius: 5px;
+    position: relative;
+    padding-left: 40px;
+}
+
+.comment-space .recomment .icon-terminal {
+    color: var(--color-2);
+    font-size: 1.2rem;
+    position: absolute;
+    left: 0px;
+}
+
+.comment-space li p {
+    margin: 10px 0;
+    margin-right: 10px;
+}
+
+.comment-space li p span {
+    font-size: 0.8rem;
+    margin-left: 15px;
+    color: var(--color-2);
+}
+
+.comment-space li [id^='edit'] {
+    margin: 20px 5px;
+    text-align: right;
+}
+
+.comment-space li fn {
+    font-size: 0.8rem;
+    padding: 10px;
+}
+
+:root[color-theme='light'] {
+    --comment-bgcolor: #f4f4f4;
+    --comment-submit-color: white;
+    --comment-submit-bgcolor: #787878;
+}
+
+:root[color-theme='dark'] {
+    --comment-bgcolor: #3e3e3e;
+    --comment-submit-color: rgb(45, 45, 45);
+    --comment-submit-bgcolor: #e2e2e2;
+}
+
+.comment-space li p[id^='comment'] {
+    margin: 20px 10px;
+}
+
+.comment-space .comment-input {
+    border-radius: 20px;
+    background-color: var(--comment-bgcolor);
+}
+
+.comment-space .comment-input textarea {
+    font-family: '�룍��';
+    font-weight: 400;
+    border: none;
+    font-size: 1rem;
+    width: 100%;
+    padding: 20px;
+    height: 200px;
+    resize: vertical;
+    outline: none;
+    background-color: rgba(0, 0, 0, 0);
+    box-sizing: border-box;
+}
+
+.comment-space .comment-input p {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 10px 20px;
+}
+
+.comment-space .comment-input p i {
+    color: var(--comment-submit-color);
+    border: none;
+    border-radius: 30px;
+    padding: 7px 9px 9px 7px;
+    background-color: var(--comment-submit-bgcolor);
+}
+
+.comment-space .comment-input input {
+    width: 30%;
+    padding: 10px;
+    font-size: 1rem;
+    border: none;
+    border-bottom: 1px solid var(--border-color);
+    outline: none;
+    background-color: rgba(0, 0, 0, 0);
+}
+
+@media (max-width: 768px) {
+    .comment-space .comment-input {
+        border-radius: 0px;
+    }
+    .comment-space .comment-input input {
+        width: 20%;
+        margin: 10px;
+    }
+    .comment-space .comment-input p {
+        padding: 5px 5px;
+    }
+}

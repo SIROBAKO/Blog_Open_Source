@@ -1,0 +1,121 @@
+#detail #thumbnail {
+    height: 400px;
+    display: flex;
+    align-items: center;
+}
+
+#detail iframe {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16/9;
+}
+
+.detail-space {
+    min-width: 0;
+    width: 100%;
+    max-width: 800px;
+    flex: 1;
+    margin: 0px auto;
+    padding: 0 20px;
+    word-break: break-all;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    line-height: 1.8;
+}
+
+.detail-space #detail {
+    width: 100%;
+    word-break: break-word;
+}
+
+.detail-space hr {
+    margin-top: 30px;
+    border: 1px solid var(--border-color);
+}
+
+.detail-space pre {
+    max-width: 800px;
+    box-sizing: border-box;
+    display: block;
+    padding: 9.5px;
+    margin: 0 0 10px;
+    font-size: 13px;
+    line-height: 1.42857143;
+    color: var(--color-code);
+    word-break: break-all;
+    word-wrap: break-word;
+    background-color: var(--background-color-code) !important;
+    border: 1px solid var(--border-color-code) !important;
+    border-radius: 4px;
+    overflow: auto;
+}
+
+.detail-space img {
+    max-width: 100%;
+}
+
+.detail-space .info_post {
+    text-align: center;
+    margin: 0 0 40px;
+}
+
+.detail-space .info_post h1 {
+    word-break: break-word;
+    margin-bottom: 10px;
+}
+
+.detail-space .info_post span {
+    color: var(--color-2);
+}
+
+.detail-space #contents {
+    flex: 1;
+}
+
+.detail-space blockquote {
+    padding: 10px 20px;
+    margin: 0 0 20px;
+    font-size: 17.5px;
+    border-left: 5px solid #eee;
+}
+
+@media (max-width: 768px) {
+    .detail-space {
+        padding: 0px;
+        margin: 0 2%;
+    }
+    .detail-space .info_post h1 {
+        font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 700px) {
+    #detail #thumbnail {
+        height: 340px;
+    }
+}
+
+@media (max-width: 600px) {
+    #detail #thumbnail {
+        height: 290px;
+    }
+}
+
+@media (max-width: 500px) {
+    #detail #thumbnail {
+        height: 240px;
+    }
+}
+
+@media (max-width: 400px) {
+    #detail #thumbnail {
+        height: 195px;
+    }
+}
+
+@media (max-width: 300px) {
+    #detail #thumbnail {
+        height: 145px;
+    }
+}

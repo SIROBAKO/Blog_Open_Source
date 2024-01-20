@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hako.web.blog.dao.CountDao">
+
+
+	<resultMap type="com.hako.web.blog.entity.Blog_Count"
+		id="Result_BLOG_Count">
+	</resultMap>
+
+
+
+	<update id="resetCount">
+		UPDATE BLOG_COUNT SET COUNT =0 WHERE COUNT_NAME LIKE
+		"%TODAY%"
+	</update>
+
+
+	<update id="addCount">
+		UPDATE BLOG_COUNT SET COUNT = COUNT + #{plus} WHERE
+		COUNT_NAME = #{name}
+	</update>
+
+	<select id="getList" resultMap="Result_BLOG_Count">
+		SELECT * FROM BLOG_COUNT
+	</select>
+
+	<select id="get" resultMap="Result_BLOG_Count">
+		SELECT * FROM BLOG_COUNT WHERE COUNT_NAME = #{name}
+	</select>
+
+
+</mapper>
