@@ -75,10 +75,10 @@ public interface BlogService {
 	List<Blog_Comment> getCommentList(int num);
 
 	// 댓글 수정
-	void updateCommentName(String old_user_name,String new_user_name);
+	void updateCommentName(String old_user_name, String new_user_name);
 
 	// 댓글 수정
-	void UpdateCommentEmail(String old_user_email,String new_user_email);
+	void updateCommentEmail(String old_user_email, String new_user_email);
 
 	// =================== 카테고리, 카운트 등 관련 메서드 ===================
 

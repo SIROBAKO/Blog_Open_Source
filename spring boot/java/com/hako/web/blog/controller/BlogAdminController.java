@@ -26,6 +26,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -83,7 +85,7 @@ public class BlogAdminController {
 
 		category = category != null ? category : "";
 		title = title != null ? title : "";
-		
+
 		List<Blog_Board> list = null;
 
 		int count = 0;
@@ -98,8 +100,6 @@ public class BlogAdminController {
 			model.addAttribute("category", category);
 
 		}
-
-		
 
 		List<Blog_Category> _category = blogService.getCategory();
 		model.addAttribute("categorys", _category);
@@ -375,13 +375,18 @@ public class BlogAdminController {
 	}
 
 	// 사이트맵 업데이트
-	@RequestMapping(value = "/appendSitemap", produces = "application/json; charset=utf8")
+	@PostMapping(value = "/appendSitemap")
 	@ResponseBody
-	public void appendSitemap(@RequestParam("board_num") int boardNum) {
-
-		updateSitemap(boardNum);
-
-	}
+    public String appendSitemap(@RequestParam("board_num") int boardNum) {
+		JsonObject jsonObject = new JsonObject();
+		if(updateSitemap(boardNum)) {
+			jsonObject.addProperty("message", "업데이트 성공");
+            return jsonObject.toString();
+        } else {
+        	jsonObject.addProperty("message", "중복된 사이트맵");
+        	  return jsonObject.toString();
+        }
+    }
 
 	// 하위 폴더 복사
 	private void fileUpload(String path_folder1, String path_folder2) {
@@ -525,14 +530,19 @@ public class BlogAdminController {
 	}
 
 	// 사이트맵 업데이트
-	private void updateSitemap(int num) {
+	private boolean updateSitemap(int num) {
 		String sitemapContent = getSitemapContent();
 
-		String newUrlElement = "<url>\n" + "    <loc>https://sirobako.co.kr/detail/" + num + "</loc>\n"
-				+ "    <priority>0.60</priority>\n" + "</url>";
+		if (!sitemapContent.contains("detail/"+num)) {
+			String newUrlElement = "<url>\n" + "    <loc>https://sirobako.co.kr/detail/" + num + "</loc>\n"
+					+ "    <priority>0.60</priority>\n" + "</url>";
 
-		sitemapContent = sitemapContent.replace("</urlset>", "") + newUrlElement + "</urlset>";
-		updateSitemapFile(sitemapContent);
+			sitemapContent = sitemapContent.replace("</urlset>", "") + newUrlElement + "</urlset>";
+			updateSitemapFile(sitemapContent);
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	// 사이트맵 불러오기

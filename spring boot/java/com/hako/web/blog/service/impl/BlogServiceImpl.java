@@ -221,9 +221,11 @@ public class BlogServiceImpl implements BlogService {
 	}
 
 	// 댓글 수정
-	public void UpdateCommentEmail(String old_user_email, String new_user_email) {
+	public void updateCommentEmail(String old_user_email, String new_user_email) {
 		commentDao.updateUserEmail(old_user_email, new_user_email);
 	}
+
+
 
 	// =================== 카테고리, 카운트 등 관련 메서드 ===================
 

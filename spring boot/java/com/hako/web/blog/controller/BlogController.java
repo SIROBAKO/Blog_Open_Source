@@ -4,8 +4,10 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -36,6 +38,10 @@ import com.hako.web.blog.entity.Blog_Category;
 import com.hako.web.blog.entity.Blog_Comment;
 import com.hako.web.blog.entity.Blog_Count;
 import com.hako.web.blog.service.BlogService;
+import com.hako.web.config.jwt.JwtProvider;
+import com.hako.web.user.dto.ResponseDTO;
+import com.hako.web.user.entity.BlogUser;
+import com.hako.web.user.service.UserService;
 
 @Controller
 @RequestMapping("/")
@@ -45,10 +51,23 @@ public class BlogController {
 	private BlogService blogService;
 
 	@Autowired
+	private UserService userService;
+
+	@Autowired
+	protected JwtProvider jwtProvider;
+
+	@Autowired
 	protected MailSender sender; // 타입으로 받을 수 있음
 
 	private Logger LOG = LogManager.getLogger(BlogController.class);
 
+
+	@RequestMapping("alert")
+	public String blogAlert() {
+
+		return "alert";
+	}
+	
 	// 메인페이지 반환
 	@RequestMapping("index")
 	public String blogIndex(Model model) {
@@ -66,6 +85,8 @@ public class BlogController {
 
 		return "Blog.index";
 	}
+
+
 
 	// 게시글 밴환
 	@RequestMapping(value = { "detail", "detail/{board_num}" })
@@ -179,10 +200,9 @@ public class BlogController {
 
 	// =============================== 댓글관련 함수 =============================
 
-
 	@PostMapping("comment")
 	@ResponseBody
-	public ResponseEntity<String> addComment(@RequestBody Map<String, Object> form) {
+	public ResponseEntity<ResponseDTO> addComment(@RequestBody Map<String, Object> form, HttpServletRequest request) {
 
 		LOG.info("댓글 작성 요청 시작");
 
@@ -191,16 +211,48 @@ public class BlogController {
 		int ref_comment = (int) form.get("ref_comment");
 		String pwd = ((String) form.get("pwd") == null) ? "" : (String) form.get("pwd");
 		String username = (String) form.get("user_name");
-		if (pwd.equals("HAKO_DEV_USER")) {
-			username += "HAKO_DEV_USER";
+		String user_email = (String) form.get("email");
+
+		// HttpServletRequest를 통해 쿠키 배열을 가져옵니다.
+		Cookie[] cookies = request.getCookies();
+		String accToken = null;
+		ResponseDTO responseDTO = new ResponseDTO();
+
+		if (cookies != null) {
+			for (Cookie cookie : cookies) {
+				// 쿠키의 이름을 확인하고 원하는 쿠키를 찾습니다.
+				if ("AccToken".equals(cookie.getName())) {
+					accToken = cookie.getValue();
+					break; // 원하는 쿠키를 찾았으므로 루프를 종료합니다.
+				}
+			}
 		}
+
+		if (accToken != null && !accToken.equals("")) {
+			// accToken 검증
+			if (!checkToken(accToken, null)) {
+				responseDTO.setPurpose("Validation Failed"); // 실패 목적 설정
+				responseDTO.setMessage("토큰이 유효하지 않습니다."); // 실패 메시지 설정
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseDTO);
+			}
+
+			String user_id = jwtProvider.getUsernameFromToken(accToken);
+			BlogUser user = userService.getUser(user_id);
+			username = user.getName() + "HAKO_DEV_USER";
+			pwd = user.getId();
+			if (user_email.equals("HAKO_DEV_USER")) {
+				user_email = user.getEmail();
+			}
+		}
+
+		pwd = BCrypt.hashpw(pwd, BCrypt.gensalt());
+
 		if (!pwd.equals("HAKO_DEV_USER") && (username.equals("HAKO") || username.equals("NULL"))) {
-
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("2");
+			responseDTO.setPurpose("Check Value");
+			responseDTO.setMessage("사용불가 닉네임 입니다.");
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseDTO);
 
 		}
-
-		pwd = BCrypt.hashpw(pwd + username, BCrypt.gensalt());
 
 		Blog_Comment comment = new Blog_Comment();
 		comment.setRef(ref);
@@ -208,22 +260,28 @@ public class BlogController {
 		comment.setUser_name(cleanXSS(username));
 		comment.setPwd(pwd);
 		comment.setComment(cleanXSS((String) form.get("comment")).replace("\n", "<br/>"));
-		comment.setEmail((String) form.get("email"));
+		comment.setEmail(user_email);
 
 		try {
 			if (blogService.insertComment(comment) == 1) {
 				LOG.info("댓글 작성 요청 성공");
 				blogService.addComment(ref);
-				return ResponseEntity.status(HttpStatus.OK).body("1");
+				responseDTO.setPurpose("Success");
+				responseDTO.setMessage("댓글 작성에 성공했습니다.");
+				return ResponseEntity.status(HttpStatus.OK).body(responseDTO);
 
 			} else {
 				LOG.info("댓글 작성 요청 실패");
-				return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("0");
+				responseDTO.setPurpose("Error");
+				responseDTO.setMessage("서버저장 오류발생");
+				return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseDTO);
 
 			}
 		} catch (Exception e) {
 			LOG.error("댓글 작성 오류", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("0");
+			responseDTO.setPurpose("Error");
+			responseDTO.setMessage("서버저장 오류발생");
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseDTO);
 
 		}
 
@@ -231,7 +289,7 @@ public class BlogController {
 
 	@PostMapping("del-comment")
 	@ResponseBody
-	public ResponseEntity<String> delComment(@RequestBody Map<String, Object> form) {
+	public ResponseEntity<ResponseDTO> delComment(@RequestBody Map<String, Object> form, HttpServletRequest request) {
 
 		LOG.info("댓글 삭제 요청 시작");
 
@@ -240,26 +298,59 @@ public class BlogController {
 		int num = (int) form.get("num");
 		int ref = (int) form.get("ref");
 		Blog_Comment comment = new Blog_Comment();
+
+		// HttpServletRequest를 통해 쿠키 배열을 가져옵니다.
+		Cookie[] cookies = request.getCookies();
+		String accToken = null;
+		ResponseDTO responseDTO = new ResponseDTO();
+
+		if (cookies != null) {
+			for (Cookie cookie : cookies) {
+				// 쿠키의 이름을 확인하고 원하는 쿠키를 찾습니다.
+				if ("AccToken".equals(cookie.getName())) {
+					accToken = cookie.getValue();
+					break; // 원하는 쿠키를 찾았으므로 루프를 종료합니다.
+				}
+			}
+		}
+
+		if (accToken != null && !accToken.equals("")) {
+			// accToken 검증
+			if (!checkToken(accToken, null)) {
+				responseDTO.setPurpose("Validation Failed"); // 실패 목적 설정
+				responseDTO.setMessage("토큰이 유효하지 않습니다."); // 실패 메시지 설정
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseDTO);
+			}
+
+			String user_id = jwtProvider.getUsernameFromToken(accToken);
+			BlogUser user = userService.getUser(user_id);
+			pwd = user.getId();
+
+		}
+
 		comment.setNum(num);
-		comment.setPwd(pwd + "HAKO_DEV_USER");
-		
+		comment.setPwd(pwd);
 
 		try {
 			int result = blogService.delComment(comment);
 
 			if (result == 1 || result == 3) {
 				LOG.info("댓글 삭제 요청 성공");
-				blogService.subComment(ref);
-				return ResponseEntity.status(HttpStatus.OK).body(result +"");
-			}else {
+				responseDTO.setPurpose("Success");
+				responseDTO.setMessage("댓글 삭제에 성공했습니다." + result);
+				return ResponseEntity.status(HttpStatus.OK).body(responseDTO);
+			} else {
 				LOG.info("댓글 삭제 요청 실패");
-				return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("0");
+				responseDTO.setPurpose("Error");
+				responseDTO.setMessage("댓글 삭제 오류발생");
+				return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseDTO);
 			}
 
-		
 		} catch (Exception e) {
 			LOG.error("댓글 삭제 오류", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("0");
+			responseDTO.setPurpose("Error");
+			responseDTO.setMessage("댓글 삭제 오류발생");
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseDTO);
 
 		}
 
@@ -267,7 +358,8 @@ public class BlogController {
 
 	@PutMapping("comment")
 	@ResponseBody
-	public ResponseEntity<String> updateComment(@RequestBody Map<String, Object> form) {
+	public ResponseEntity<ResponseDTO> updateComment(@RequestBody Map<String, Object> form,
+			HttpServletRequest request) {
 
 		LOG.info("댓글 수정 요청 시작");
 
@@ -275,12 +367,42 @@ public class BlogController {
 		String pwd = ((String) form.get("pwd") == null) ? "" : (String) form.get("pwd");
 		int num = (int) form.get("num");
 		String username = (String) form.get("user_name");
-		if (pwd.equals("HAKO_DEV_USER")) {
-			username += "HAKO_DEV_USER";
+
+		// HttpServletRequest를 통해 쿠키 배열을 가져옵니다.
+		Cookie[] cookies = request.getCookies();
+		String accToken = null;
+		ResponseDTO responseDTO = new ResponseDTO();
+
+		if (cookies != null) {
+			for (Cookie cookie : cookies) {
+				// 쿠키의 이름을 확인하고 원하는 쿠키를 찾습니다.
+				if ("AccToken".equals(cookie.getName())) {
+					accToken = cookie.getValue();
+					break; // 원하는 쿠키를 찾았으므로 루프를 종료합니다.
+				}
+			}
 		}
+
+		if (accToken != null && !accToken.equals("")) {
+			// accToken 검증
+			if (!checkToken(accToken, null)) {
+				responseDTO.setPurpose("Validation Failed"); // 실패 목적 설정
+				responseDTO.setMessage("토큰이 유효하지 않습니다."); // 실패 메시지 설정
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseDTO);
+			}
+
+			String user_id = jwtProvider.getUsernameFromToken(accToken);
+			BlogUser user = userService.getUser(user_id);
+			username = user.getName() + "HAKO_DEV_USER";
+			pwd = user.getId();
+
+		}
+
 		if (!pwd.equals("HAKO_DEV_USER") && (username.equals("HAKO") || username.equals("NULL"))) {
 
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("3");
+			responseDTO.setPurpose("Check Value");
+			responseDTO.setMessage("사용불가 닉네임 입니다.");
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseDTO);
 
 		}
 
@@ -289,22 +411,28 @@ public class BlogController {
 		comment.setUser_name(cleanXSS(username));
 		comment.setComment(cleanXSS((String) form.get("comment")).replace("\n", "<br/>"));
 		comment.setNum(num);
-		comment.setPwd(pwd + username);
+		comment.setPwd(pwd);
 
 		try {
 			if (blogService.updateComment(comment) == 1) {
 				LOG.info("댓글 수정 요청 성공");
 
-				return ResponseEntity.status(HttpStatus.OK).body("1");
+				responseDTO.setPurpose("Success");
+				responseDTO.setMessage("댓글 수정에 성공했습니다.");
+				return ResponseEntity.status(HttpStatus.OK).body(responseDTO);
 
 			} else {
 				LOG.info("댓글 수정 요청 실패");
-				return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("0");
+				responseDTO.setPurpose("Error");
+				responseDTO.setMessage("댓글 수정 오류발생");
+				return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseDTO);
 
 			}
 		} catch (Exception e) {
 			LOG.error("댓글 수정 오류", e);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("0");
+			responseDTO.setPurpose("Error");
+			responseDTO.setMessage("댓글 수정 오류발생");
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseDTO);
 
 		}
 
@@ -315,7 +443,7 @@ public class BlogController {
 	// 유저명, 댓글 내용, 대댓글 여부, 게시글 번호
 	@PostMapping("SendEmail")
 	@ResponseBody
-	public void sendEmail(@RequestBody Map<String, Object> form) {
+	public void sendEmail(@RequestBody Map<String, Object> form, HttpServletRequest request) {
 
 		// 일반 유저일 경우 블로그 주인에게 메일 전송
 		if (!form.get("user_name").equals("HAKO")) {
@@ -329,19 +457,45 @@ public class BlogController {
 		}
 
 		int ref_comment = (int) form.get("ref_comment");
-
+		String user_email = (String) form.get("email");
 		// 댓글에 이메일 반환 설정을 해놨을 경우 댓글 전송
 		if (ref_comment != 0) {
 			List<String> FeedBackEmail = blogService.feedBackComment(ref_comment);
 
+			if (user_email.equals("HAKO_DEV_USER")) {
+				// HttpServletRequest를 통해 쿠키 배열을 가져옵니다.
+				Cookie[] cookies = request.getCookies();
+				String accToken = null;
+
+				if (cookies != null) {
+					for (Cookie cookie : cookies) {
+						// 쿠키의 이름을 확인하고 원하는 쿠키를 찾습니다.
+						if ("AccToken".equals(cookie.getName())) {
+							accToken = cookie.getValue();
+							break; // 원하는 쿠키를 찾았으므로 루프를 종료합니다.
+						}
+					}
+				}
+
+				// accToken 검증
+				if (checkToken(accToken, null)) {
+					String user_id = jwtProvider.getUsernameFromToken(accToken);
+					BlogUser user = userService.getUser(user_id);
+					user_email = user.getEmail();
+				}
+
+			}
+			// 중복 이메일은 한번만
+			Set<String> sentEmails = new HashSet<>();
 			for (String email : FeedBackEmail) {
-				if (!email.equals((String) form.get("email")) && !email.equals("")) {
+				if (!email.equals(user_email) && !email.equals("") && !sentEmails.contains(email)) {
 
 					String title = "대댓글이 달렸습니다";
 					String contents = "댓글 : " + cleanXSS((String) form.get("comment"))
 							+ "\nhttps://sirobako.co.kr/detail/" + form.get("ref");
 
 					sendEmail(email, title, contents);
+					sentEmails.add(email);
 				}
 			}
 		}
@@ -441,6 +595,32 @@ public class BlogController {
 		Duration duration = Duration.between(now, endOfDay);
 		long seconds = duration.getSeconds();
 		return (int) seconds;
+	}
+
+	// Token 인증
+	private boolean checkToken(String accToken, String refToken) {
+
+		String user_id = "";
+		boolean valid = false;
+		if (accToken != null) {
+			valid = jwtProvider.validateToken(accToken).equals("valid");
+			if (valid) {
+				user_id = jwtProvider.getUsernameFromToken(accToken);
+			}
+		} else {
+			valid = jwtProvider.validateToken(refToken).equals("valid");
+			if (valid) {
+				user_id = jwtProvider.getUsernameFromToken(refToken);
+			}
+		}
+
+		// 토큰 유효성 검사
+		if (!valid && !userService.checkToken(accToken, refToken, user_id)) {
+			return false;
+		} else {
+			return true;
+		}
+
 	}
 
 }

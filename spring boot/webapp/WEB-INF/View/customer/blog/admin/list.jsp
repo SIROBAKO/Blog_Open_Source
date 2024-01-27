@@ -53,7 +53,7 @@
 		<tag:set var="LastNum"
 			value="${ fn:substringBefore(Math.ceil(count/6),'.')}" />
 
-		<tag:if test="${StartNum>1}">\
+		<tag:if test="${StartNum>1}">
 			<li><a
 				href="${param.category}?title=${param.title}&page=${StartNum-1}">
 					<i class="icon-left-open-big"></i>

@@ -44,6 +44,7 @@
 </div>
 
 <script>
+
 $(document).ready(function () {
     $('#summernote').summernote(
         {
@@ -146,11 +147,17 @@ $(document).ready(function () {
 		          onInit: function() {
 		                $('.note-editable').css('font-size', '16px'); // 기본 글씨 크기 설정
 		                $('.note-editable').css('line-height', '1.8'); // 행간 설정
+		                $('.note-toolbar').css('background-color', 'var(--background-color-code)'); 
+		                $('.note-toolbar *').css('color', 'black'); 
+		                $('.note-editable').css('background-color', 'var(--background-color)'); 
+		                   
 		            }
 		     	 
             }   
         },
     )
+    
+ 
 })
 
 
@@ -183,6 +190,7 @@ function deleteSummernoteImageFile(imageName) {
         processData: false
     })
 }
+
 
 
 </script>

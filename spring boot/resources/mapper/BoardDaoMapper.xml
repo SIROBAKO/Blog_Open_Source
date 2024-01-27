@@ -107,7 +107,7 @@
 		SELECT NUM,TITLE FROM
 		BLOG_BOARD WHERE
 		HIDDEN = 'N' ORDER
-		BY COUNT DESC LIMIT 5;
+		BY COUNT DESC LIMIT 20;
 	</select>
 
 	<!-- 다음 글 목록 반환 -->

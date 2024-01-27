@@ -75,4 +75,6 @@ public class CommentDaoImpl implements CommentDao {
 		mapper.updateUserEmail(old_user_email, new_user_email);
 	}
 
+	
+
 }

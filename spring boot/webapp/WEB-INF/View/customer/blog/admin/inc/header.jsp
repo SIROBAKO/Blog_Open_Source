@@ -45,7 +45,7 @@
 				style="padding: 7px; box-sizing: border-box; width: 100%; margin: 15px 0; background-color: var(--background-color-code); border: none;" />
 			<input type="button" value="사이트맵 등록" onclick="appendSitemap(1)"
 				style="border: none; background-color: var(--background-color-code); width: 100%; padding: 5px;" />
-			
+
 		</div>
 		<script type="text/javascript">
 			function appendSitemap(num) {
@@ -53,25 +53,30 @@
 
 				var sitemapId = $('input[name="sitemap' + num + '"]').val();
 
-				if (sitemapId !== "") {
-				
+				if (sitemapId !== "" && isNumeric(sitemapId)) {
+
 					// Ajax 요청
 					$.ajax({
-						url : 'appendSitemap', // 업데이트를 처리할 서버의 URL
+						url : '/admin/appendSitemap', // 업데이트를 처리할 서버의 URL
 						method : 'POST', // 요청 방식 (GET 또는 POST)
 						data : {
 							board_num : sitemapId
-						}
-					// 전송할 데이터 (파라미터)
+						},
+						success : function(responseData) {
+							if (responseData.includes("script")) {
+								alert("테스트 유저는 사용할 수 없는 기능입니다.");
+							} else {
+								alert(responseData);
+							}
+						},
 					});
-
-					alert("사이트맵 등록");
-				}else{
-					alert("값을 입력하세요");
+				} else {
+					alert("값을 확인하세요");
 				}
 			}
-
-			
+			function isNumeric(value) {
+				return !isNaN(parseFloat(value)) && isFinite(value);
+			}
 		</script>
 
 	</div>

@@ -30,4 +30,6 @@ public interface CommentDao {
     void updateUserName(String old_user_name,String new_user_name);
     
     void updateUserEmail(String old_user_email,String new_user_email);
+    
+   
 }

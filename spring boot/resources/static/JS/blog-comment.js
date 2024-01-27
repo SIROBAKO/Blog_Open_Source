@@ -47,10 +47,12 @@ function AddComment(ref, ref_comment, recomment) {
 			var input = ""
 			if (name_space.innerText == "") {
 				input = prompt('이메일을 입력해주세요.', '')
+			} else {
+				input = "HAKO_DEV_USER"
 			}
-			if (input !== null) {
-				email = input
-			}
+
+			email = input
+
 		}
 		const form = {
 			ref: ref,
@@ -59,7 +61,7 @@ function AddComment(ref, ref_comment, recomment) {
 			user_name: user_name,
 			pwd: pwd,
 			email: email
-			
+
 		}
 
 		const option = {
@@ -71,14 +73,16 @@ function AddComment(ref, ref_comment, recomment) {
 		}
 
 		fetch('/comment', option)
-			.then((res) => res.text())
-			.then((text) => {
-				result = text.replace(/[^0-9]/g, '')
-				if (result == 1) {
+			.then(response => {
+				return response.json()
+			})
+			.then((data) => {
+
+				if (data.purpose == 'Success') {
 					alert('댓글이 등록되었습니다.')
 					sendEmail(ref, ref_comment, comment, user_name, email)
 					location.reload()
-				} else if (result == 2) {
+				} else if (data.purpose == 'Check Value') {
 					alert('등록할 수 없는 이름 입니다.')
 				} else {
 					alert('댓글 등록에 실패하였습니다.')
@@ -98,7 +102,7 @@ function DelComment(num, ref) {
 		} else {
 
 			var user_name = name_space.innerText.split(" ")[0]
-			pwd += user_name
+			pwd += user_name + 'HAKO_DEV_USER'
 		}
 		if (pwd == '') {
 			alert('비밀번호를 입력하세요')
@@ -118,24 +122,26 @@ function DelComment(num, ref) {
 			}
 
 			fetch('/del-comment', option)
-				.then((res) => res.text())
-				.then((text) => {
-					result = text.replace(/[^0-9]/g, '')
-					if (result == 1) {
-						document.getElementById('comment_area' + num).remove()
-						alert('댓글이 삭제되었습니다.')
-					} else if (result == 0) {
+				.then(response => {
+					return response.json()
+				})
+				.then((data) => {
+					if (data.purpose == 'Success') {
+		
+						if (data.message.includes("1")) {
+							document.getElementById('comment_area' + num).remove()
+							alert('댓글이 삭제되었습니다.')
+						} else {
+							document.getElementById('user-name' + num).innerHTML =
+								'NULL'
+							document.getElementById('comment' + num).innerHTML =
+								'삭제된 댓글 입니다.'
+							document.getElementById('edit' + num).remove()
+							alert('댓글이 삭제되었습니다.')
+						}
+					} else {
 						alert('댓글이 삭제에 실패하였습니다.')
-					} else if (result == 2) {
-						alert('비밀번호가 틀립니다.')
-					} else if (result == 3) {
-						document.getElementById('user-name' + num).innerHTML =
-							'NULL'
-						document.getElementById('comment' + num).innerHTML =
-							'삭제된 댓글 입니다.'
-						document.getElementById('edit' + num).remove()
-						alert('댓글이 삭제되었습니다.')
-					}
+					} 
 				})
 		}
 	}
@@ -180,21 +186,18 @@ function UpdateComment(num) {
 		}
 
 		fetch('/comment', option)
-			.then((res) => res.text())
-			.then((text) => {
-				result = text.replace(/[^0-9]/g, '')
-				if (result == 1) {
+			.then(response => {
+				return response.json()
+			})
+			.then((data) => {
+
+				if (data.purpose == 'Success') {
 					document.getElementById('comment' + num).innerText = comment
 					document.getElementById('user-name' + num).innerText =
 						user_name
 					document.getElementById('recomment').remove()
 					alert('댓글이 수정되었습니다.')
-				} else if (result == 0) {
-					alert('댓글이 수정에 실패하였습니다.')
-				} else if (result == 2) {
-					alert('비밀번호가 틀립니다.')
-					pwd_fus.focus()
-				} else if (result == 3) {
+				} else if (data.purpose == 'Check Value') {
 					alert('수정 할 수 없는 이름 입니다.')
 				} else {
 					alert('댓글 수정에 실패하였습니다.')
@@ -221,7 +224,7 @@ function ReComment(ref, ref_comment, pos, update) {
 			input_console += '<textarea id="re-comment"> </textarea>'
 			input_console += '<p>'
 
-			if (name_space.innerText== "") {
+			if (name_space.innerText == "") {
 				input_console += '이름 : <input type="text" id="re-user-name" /> '
 				input_console += '암호 : <input type="text" id="re-pwd" />'
 

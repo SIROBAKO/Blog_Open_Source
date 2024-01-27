@@ -67,4 +67,5 @@
 	   EMAIL=#{new_user_email} WHERE EMAIL=#{old_user_email};
 	</update>
 	
+
 </mapper>

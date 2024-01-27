@@ -5,12 +5,13 @@
 <!DOCTYPE html>
 <html lang="ko-KR">
 <head>
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+
 <!-- include libraries(jQuery, bootstrap) -->
 <tag:if test="${empty list}">
-	<link
+	 <link
 		href="/Css/summernote/bootstrap.min.css"
-		rel="stylesheet" />
-	<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+		rel="stylesheet" />  
 	<script
 		src="https://stackpath.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
 

@@ -273,7 +273,7 @@ public class UserRestController {
 			if (userService.updateUser(user)) {
 
 				blogService.updateCommentName(oldName, user_name + uT);
-				blogService.UpdateCommentEmail(oldEmail, user_email);
+				blogService.updateCommentEmail(oldEmail, user_email);
 
 				LOG.info("회원정보 수정 성공");
 				responseDTO.setPurpose("Success");
@@ -319,10 +319,14 @@ public class UserRestController {
 		try {
 
 			// accToken 검증
-			if (!checkToken(accToken, null)) {
+			if (!accToken.equals("") &&!checkToken(accToken, null)) {
 				userDTO.setPurpose("Validation Failed"); // 실패 목적 설정
 				userDTO.setMessage("토큰이 유효하지 않습니다."); // 실패 메시지 설정
 				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(userDTO);
+			}else if(accToken.equals("")) {
+				userDTO.setPurpose("Empty Value"); // 실패 목적 설정
+				userDTO.setMessage("토큰이 없습니다."); // 실패 메시지 설정
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(userDTO);
 			}
 
 			String user_id = jwtProvider.getUsernameFromToken(accToken);
@@ -607,7 +611,7 @@ public class UserRestController {
 		// 서버통신 부분
 		try {
 			// refToken 검증
-			if (!checkToken(null, refToken)) {
+			if (!refToken.equals("") &&!checkToken(null, refToken)) {
 
 				Cookie cookie = new Cookie("AccToken", "");
 				cookie.setPath("/");
@@ -622,6 +626,11 @@ public class UserRestController {
 				responseDTO.setPurpose("Validation Failed"); // 실패 목적 설정
 				responseDTO.setMessage("토큰이 유효하지 않습니다."); // 실패 메시지 설정
 				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseDTO);
+
+			}else if(refToken.equals("")){
+				responseDTO.setPurpose("Empty Value"); // 실패 목적 설정
+				responseDTO.setMessage("토큰이 없습니다."); // 실패 메시지 설정
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseDTO);
 			}
 
 			String user_id = jwtProvider.getUsernameFromToken(refToken);
