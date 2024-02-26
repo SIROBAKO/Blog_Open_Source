@@ -1,6 +1,0 @@
-User-agent: *
-Allow:/
-Sitemap: https://sirobako.co.kr/upload_image/sitemap/sitemap.xml
-
-
-#DaumWebMasterTool:851e5efbcf31fc4d418d8a25c412634860526a3918eb70e2e8c3687eed788fe6:vwyi5OQGScJUNx7ibbej7Q==

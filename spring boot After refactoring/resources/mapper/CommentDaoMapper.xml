@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hako.web.blog.commet.dao.CommentDao">
+
+
+	<resultMap type="com.hako.web.blog.commet.entity.BlogComment"
+		id="Result_BLOG_COMMENT">
+		<result property="pwd" column="PASSWORD" />
+	</resultMap>
+
+	<parameterMap
+		type="com.hako.web.blog.commet.entity.BlogComment"
+		id="Param_BLOG_COMMENT"></parameterMap>
+
+
+	<!-- 댓글 등록 -->
+	<insert id="insertComment" parameterMap="Param_BLOG_COMMENT">
+		INSERT INTO BLOG_COMMENT
+		(BOARD_NUM, REF_COMMENT, COMMENT, USER_NAME, PASSWORD, EMAIL)
+		VALUES
+		(#{board_num}, #{ref_comment}, #{comment}, #{user_name}, #{pwd},
+		COALESCE(#{email}, ''));
+
+	</insert>
+
+	<!-- 댓글 수정 -->
+	<update id="updateComment" parameterMap="Param_BLOG_COMMENT">
+		UPDATE BLOG_COMMENT SET
+		COMMENT= #{comment}, USER_NAME=#{user_name} WHERE NUM= ${num};
+	</update>
+
+	<!-- 댓글 삭제 -->
+	<delete id="deleteComment">
+		DELETE FROM BLOG_COMMENT WHERE
+		NUM=${num};
+	</delete>
+
+	<!-- 댓글 리스트 반환 -->
+	<select id="getCommentList" resultMap="Result_BLOG_COMMENT">
+		SELECT *FROM BLOG_COMMENT
+		WHERE BOARD_NUM =${num} ORDER BY CREATE_DATE DESC;
+	</select>
+
+	<!-- 댓글 반환 -->
+	<select id="getComment" resultMap="Result_BLOG_COMMENT">
+		SELECT * FROM BLOG_COMMENT
+		WHERE
+		NUM=${num};
+	</select>
+
+	<!-- 하위 댓글 수 반환 -->
+	<select id="getRefCount" resultType="int">
+		SELECT COUNT(*)AS COUNT FROM
+		BLOG_COMMENT WHERE
+		REF_COMMENT=${ref};
+	</select>
+
+	<select id="getRefCommentEmailList" resultType="String">
+		SELECT EMAIL FROM
+		BLOG_COMMENT WHERE
+		NUM = ${ref} OR (REF_COMMENT=${ref} AND NOT
+		REF_COMMENT = 0) AND NOT
+		EMAIL = '';
+	</select>
+
+	<!-- 회원정보 수정시 댓글 정보 변경 -->
+	<update id="updateUserName">
+		UPDATE BLOG_COMMENT SET
+		USER_NAME=#{new_user_name}
+		WHERE USER_NAME=#{old_user_name};
+	</update>
+
+	<update id="updateUserEmail">
+		UPDATE BLOG_COMMENT SET
+		EMAIL=#{new_user_email} WHERE
+		EMAIL=#{old_user_email};
+	</update>
+
+	<select id="getLastCommentNum" resultType="int">
+		SELECT MAX(NUM) FROM
+		BLOG_COMMENT;
+	</select>
+
+</mapper>

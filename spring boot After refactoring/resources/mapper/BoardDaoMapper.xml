@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.hako.web.blog.board.dao.BoardDao">
+
+
+	<resultMap type="com.hako.web.blog.board.entity.BlogBoard"
+		id="RESULT_BLOG_BOARD">
+		<result property="date" column="CREATE_DATE" />
+	</resultMap>
+
+	<parameterMap
+		type="com.hako.web.blog.board.entity.BlogBoard" id="PARAM_BLOG_BOARD"></parameterMap>
+
+
+	
+
+	<!-- 게시글 목록 반환 -->
+	<select id="getBoardList" resultMap="RESULT_BLOG_BOARD">
+		SELECT NUM, TITLE, CATEGORY,
+		CREATE_DATE, HIDDEN
+		FROM (
+		SELECT @ROWNUM
+		:= @ROWNUM + 1 AS ROWNUM, TMP.*
+		FROM (
+		SELECT *
+		FROM BLOG_BOARD
+		WHERE
+
+		HIDDEN =#{hidden}
+
+		AND
+		CATEGORY LIKE
+		CONCAT('%', #{category}, '%')
+		AND
+		TITLE LIKE
+		CONCAT('%',
+		#{query}, '%')
+		)
+		TMP
+		CROSS JOIN (SELECT @ROWNUM := 0) TMP2
+		ORDER BY NUM
+		DESC
+		) TMP3
+		WHERE
+		ROWNUM BETWEEN #{start} AND #{end}
+		ORDER
+		BY ROWNUM;
+	</select>
+
+	<!-- 게시글 목록 개수 반환 -->
+	<select id="getBoardCount" resultType="int">
+		SELECT COUNT(*) AS COUNT
+		FROM
+		BLOG_BOARD
+		WHERE CATEGORY LIKE CONCAT('%',
+		#{category}, '%')
+		AND TITLE
+		LIKE CONCAT('%', #{query}, '%')
+		AND HIDDEN =#{hidden} ;
+
+	</select>
+
+	<!-- 게시글 반환 -->
+	<select id="getBoard" resultMap="RESULT_BLOG_BOARD">
+		SELECT * FROM BLOG_BOARD WHERE NUM =
+		${boardNum};
+	</select>
+
+	<!-- 게시글 반환 -->
+	<select id="getNewBoardNum" resultType="int">
+		SELECT MAX(NUM) + 1 FROM BLOG_BOARD
+	</select>
+
+	<!-- 조회수 증가 -->
+	<update id="addViewCount">
+		UPDATE BLOG_BOARD SET COUNT = 1+ COUNT WHERE NUM =
+		${boardNum};
+	</update>
+
+	<!-- 댓글 증가 -->
+	<update id="addCommentCount">
+		UPDATE BLOG_BOARD SET COMMENT = 1+ COMMENT WHERE NUM
+		= ${boardNum};
+	</update>
+
+	<!-- 댓글 감소 -->
+	<update id="subCommentCount">
+		UPDATE BLOG_BOARD SET COMMENT = COMMENT - 1 WHERE NUM
+		= ${boardNum};
+	</update>
+
+	<!-- 추천 게시물 목록 반환 -->
+	<select id="getCommendBoardList" resultMap="RESULT_BLOG_BOARD">
+		SELECT NUM,TITLE FROM
+		BLOG_BOARD WHERE
+		HIDDEN = 'N' ORDER
+		BY COUNT DESC LIMIT 20;
+	</select>
+
+	<!-- 다음 글 목록 반환 -->
+	<select id="getCommendNextBoardList" resultMap="RESULT_BLOG_BOARD">
+		SELECT NUM,TITLE FROM
+		(SELECT *
+		FROM BLOG_BOARD WHERE NUM &gt;
+		(SELECT
+		NUM FROM
+		BLOG_BOARD
+		WHERE
+		NUM = ${boardNum}
+		) AND
+		HIDDEN = "N" AND CATEGORY LIKE '%${category}%'
+		LIMIT
+		${count}
+		)TMP ORDER BY NUM DESC;
+	</select>
+
+	<!-- 이전 글 목록 반환 -->
+	<select id="getCommendPrevBoardList" resultMap="RESULT_BLOG_BOARD">
+		SELECT NUM,TITLE FROM
+		BLOG_BOARD
+		WHERE NUM &lt; (SELECT NUM FROM BLOG_BOARD WHERE
+		NUM = ${boardNum}
+		)AND HIDDEN = "N" AND CATEGORY LIKE '%${category}%' ORDER
+		BY
+		NUM
+		DESC
+		LIMIT
+		${count};
+	</select>
+
+
+	<!-- 게시글 등록 -->
+	<insert id="insertBoard" parameterMap="PARAM_BLOG_BOARD"> INSERT INTO BLOG_BOARD
+		(NUM,TITLE,DESCRIPTION,CATEGORY,CONTENTS,COMMENT,COUNT,HIDDEN)
+		VALUES(#{num}, #{title},#{description},#{category},#{contents},0,0,#{hidden});
+	</insert>
+
+	<!-- 게시글 수정 -->
+	<update id="updateBoard" parameterMap="PARAM_BLOG_BOARD">
+		UPDATE BLOG_BOARD SET TITLE=
+		#{title}, CATEGORY= #{category}, CONTENTS= #{contents}, HIDDEN =
+		#{hidden}, CREATE_DATE = NOW(), DESCRIPTION = #{description} WHERE
+		NUM=#{num};
+	</update>
+
+	<!-- 게시글 삭제 -->
+	<delete id="deleteBoard">
+		DELETE FROM BLOG_BOARD WHERE NUM=${boardNum};
+	</delete>
+
+	
+</mapper>

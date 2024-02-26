@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.hako.web.blog.board.dao.CategoryDao">
+
+
+
+	<resultMap
+		type="com.hako.web.blog.board.entity.BlogCategory"
+		id="RESULT_BLOG_CATEGORY">
+		<result property="date" column="CREATE_DATE" />
+	</resultMap>
+
+	<!-- 카테고리 검색 -->
+	<select id="getCategoryList" resultMap="RESULT_BLOG_CATEGORY">
+		SELECT * FROM BLOG_CATEGORY
+		ORDER BY NUM
+	</select>
+
+	<!-- 카테고리 게시글 별 수 업데이트 -->
+	<update id="updateCategory">
+		UPDATE BLOG_CATEGORY BC
+		SET BC.COUNT = (
+		SELECT
+		COUNT(*)
+		FROM BLOG_BOARD BB
+		WHERE
+		(BC.QUERY = '' AND BB.HIDDEN = 'N') OR
+		(BB.CATEGORY = BC.QUERY AND BB.HIDDEN = 'N')
+		)
+	</update>
+
+</mapper>
