@@ -11,6 +11,8 @@ Spring 버전은 초기에 만들어서 업데이트를 하지않아 UI 및 기�
 
 <a href = "https://sirobako.co.kr">https://sirobako.co.kr/</a>
 
+최근 리팩토링하여 기존 코드개선 작업을 하였습니다. 
+
 
 
 ![블로그 서비스 포트폴리오_page-0001](https://github.com/SIROBAKO/Blog_Open_Source/assets/109245143/756229a9-362c-4d5e-8c6b-9a573c740a80)
